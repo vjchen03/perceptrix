@@ -1,28 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
-const RegisterPage = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword) return alert("All fields required.");
-    if (password !== confirmPassword) return alert("Passwords must match.");
-    if (password.length < 6) return alert("Password must be 6+ characters.");
+    if (!email || !password) return alert("Please enter all fields.");
 
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Account created!");
-      navigate("/login");
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/"); // or navigate("/dashboard") if you have a main screen
     } catch (error) {
-      alert("Error: " + error.message);
+      alert("Login failed: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -38,14 +34,14 @@ const RegisterPage = () => {
 
       <img
         src="/home/login-register-icon.jpg"
-        alt="Register visual"
+        alt="Login visual"
         style={styles.banner}
       />
 
       <div style={styles.card}>
-        <h1 style={styles.title}>Register</h1>
+        <h1 style={styles.title}>Login</h1>
 
-        <form style={styles.form} onSubmit={handleRegister}>
+        <form style={styles.form} onSubmit={handleLogin}>
           <input
             type="email"
             placeholder="Email"
@@ -60,30 +56,22 @@ const RegisterPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            style={styles.input}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
 
           <button type="submit" style={styles.filledButton} disabled={loading}>
-            {loading ? "Registering..." : "Register"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <button onClick={() => navigate("/login")} style={styles.linkButton}>
-          Already have an account? Login
+        <button onClick={() => navigate("/register")} style={styles.linkButton}>
+          Don't have an account? Register
         </button>
       </div>
     </div>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;
 
-// css styles for register page
 const styles = {
   wrapper: {
     width: "100%",
@@ -111,13 +99,6 @@ const styles = {
     color: "#007AFF",
     fontSize: "16px",
     cursor: "pointer",
-  },
-  topTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontWeight: "600",
-    fontSize: "16px",
-    marginRight: "2rem",
   },
   banner: {
     width: "100%",
