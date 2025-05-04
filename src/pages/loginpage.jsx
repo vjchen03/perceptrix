@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
 const LoginPage = () => {
@@ -9,6 +9,16 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("Already signed in:", user.email);
+        navigate("/info");
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) return alert("Please enter all fields.");
@@ -16,8 +26,9 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/"); // or navigate("/dashboard") if you have a main screen
+      navigate("/info");
     } catch (error) {
+      console.error("Login error:", error);
       alert("Login failed: " + error.message);
     } finally {
       setLoading(false);
