@@ -149,7 +149,7 @@ const styles = {
   },
   input: {
     padding: "0.75rem 1rem",
-    borderRadius: "25px",
+    borderRadius: "6px",
     border: "1px solid #ddd",
     fontSize: "16px",
     backgroundColor: "#f9f9f9",
