@@ -16,9 +16,11 @@ If you are developing a production application, we recommend using TypeScript wi
 1: `git clone` repo <br />
 2: `npm install` <br />
 3: `npm install firebase` <br />
+4: `npm install react-router-dom` <br />
 
-start the web app: <br />
+start the web app development mode (can actively see changes): <br />
 `npm run dev`
 
-preview the app: <br />
+get the app running: <br />
+`npm run build` <br />
 `npm run preview`
