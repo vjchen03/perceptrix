@@ -11,14 +11,14 @@ Currently, two official plugins are available:
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
-Steps to run:
+## Steps to run:
 
-1: `clone repo`
-2: `npm install`
-3: `npm install firebase`
+1: `git clone` repo <br />
+2: `npm install` <br />
+3: `npm install firebase` <br />
 
-start the web app:
+start the web app: <br />
 `npm run dev`
 
-preview the app
+preview the app: <br />
 `npm run preview`
