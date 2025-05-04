@@ -1,8 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate("/info");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
+
+  if (checkingAuth) return null; 
 
   return (
     <div style={styles.wrapper}>
