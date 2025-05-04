@@ -14,6 +14,7 @@ const faceShapes = [
   { label: "Diamond Face", img: "/face-shapes/diamond.jpg" },
 ];
 
+
 const InfoPage = () => {
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
@@ -41,7 +42,12 @@ const InfoPage = () => {
               ...styles.card,
               border: selected === shape.label ? "2px solid #5b4bff" : "none",
             }}
-            onClick={() => handleSelect(shape.label)}
+            onClick={() => {
+              setSelected(shape.label);
+              localStorage.setItem("selectedFaceShape", shape.label);
+              const routeKey = shape.label.split(" ")[0].toLowerCase(); // e.g., "Oval Face" → "oval"
+              navigate(`/face/${routeKey}`);
+            }}
           >
             <img src={shape.img} alt={shape.label} style={styles.image} />
             <div style={styles.overlay}>

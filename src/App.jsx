@@ -3,6 +3,7 @@ import HomePage from "./pages/homepage";
 import LoginPage from "./pages/loginpage";
 import RegisterPage from "./pages/registerpage";
 import InfoPage from "./pages/infopage";
+import FaceDetailPage from "./pages/FaceDetailPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} /> 
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/info" element={<InfoPage />} />
+        <Route path="/face/:shape" element={<FaceDetailPage />} />
       </Routes>
     </Router>
   );

@@ -106,11 +106,14 @@ const styles = {
     color: "#000",
   },
   backButton: {
-    background: "none",
+    alignSelf: "flex-start",
+    marginBottom: "1rem",
+    backgroundColor: "#eee",
     border: "none",
-    color: "#007AFF",
-    fontSize: "16px",
+    padding: "0.5rem 1rem",
+    borderRadius: "6px",
     cursor: "pointer",
+    fontWeight: "500",
   },
   topTitle: {
     flex: 1,
