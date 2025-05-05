@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { IoMdInformationCircle } from "react-icons/io"; //info icon
-import { GrRobot } from "react-icons/gr"; // ai icon
-import { RiGlassesFill } from "react-icons/ri"; // tryon icon
-import { AiOutlineUser } from "react-icons/ai"; // profile icon
 
 const faceShapes = [
   { label: "Oval Face", img: "/face-shapes/oval.jpg" },
@@ -31,7 +27,7 @@ const InfoPage = () => {
   };
 
   return (
-    <div style={styles.wrapper}>
+    <>
       <h1 style={styles.heading}>Face Gallery</h1>
 
       <div style={styles.grid}>
@@ -56,64 +52,14 @@ const InfoPage = () => {
           </div>
         ))}
       </div>
-
-      <div style={styles.navbar}>
-        <TabButton
-          icon={<IoMdInformationCircle size={24} />}
-          label="Info"
-          active={location.pathname === "/info"}
-          onClick={() => navigate("/info")}
-        />
-        <TabButton
-          icon={<GrRobot size={24} />}
-          label="AI"
-          active={location.pathname === "/ai"}
-          onClick={() => navigate("/ai")}
-        />
-        <TabButton
-          icon={<RiGlassesFill size={24} />}
-          label="Try On"
-          active={location.pathname === "/tryon"}
-          onClick={() => navigate("/tryon")}
-        />
-        <TabButton
-          icon={<AiOutlineUser size={24} />}
-          label="Profile"
-          active={location.pathname === "/profile"}
-          onClick={() => navigate("/profile")}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 
 export default InfoPage;
 
-const TabButton = ({ icon, label, active, onClick }) => (
-  <div
-    onClick={onClick}
-    style={{
-      ...styles.navItem,
-      color: active ? "#5b4bff" : "#666",
-      fontWeight: active ? "600" : "400",
-    }}
-  >
-    {icon}
-    <div style={{ fontSize: "12px", marginTop: "4px" }}>{label}</div>
-  </div>
-);
 
 const styles = {
-  wrapper: {
-    maxWidth: "430px",
-    margin: "0 auto",
-    padding : "0 1.5rem",
-    fontFamily: "sans-serif",
-    backgroundColor: "#fff",
-    minHeight: "100vh",
-    paddingBottom: "80px",
-    position: "relative",
-  },
   heading: {
     fontSize: "35px",
     fontWeight: "700",
@@ -155,27 +101,5 @@ const styles = {
     color: "#fff",
     fontSize: "13px",
     fontWeight: "500",
-  },
-  navbar: {
-    position: "fixed",
-    bottom: 0,
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "100%",
-    maxWidth: "430px",
-    backgroundColor: "#fff",
-    borderTop: "1px solid #ddd",
-    display: "flex",
-    justifyContent: "space-around",
-    padding: "0.5rem 0 0.3rem",
-    boxShadow: "0 -1px 6px rgba(0, 0, 0, 0.08)",
-  },
-  navItem: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    fontSize: "12px",
-    cursor: "pointer",
-    gap: "2px",
   },
 };

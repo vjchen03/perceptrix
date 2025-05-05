@@ -21,29 +21,27 @@ const HomePage = () => {
   if (checkingAuth) return null; 
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.content}>
-        <img
-          src="/home/homepage-icon.jpg"
-          alt="Virtual glasses illustration"
-          style={styles.image}
-        />
+    <div style={styles.content}>
+      <img
+        src="/home/homepage-icon.jpg"
+        alt="Virtual glasses illustration"
+        style={styles.image}
+      />
 
-        <h1 style={styles.title}>Perceptrix</h1>
-        <p style={styles.subtitle}>Try on virtual glasses effortlessly</p>
+      <h1 style={styles.title}>Perceptrix</h1>
+      <p style={styles.subtitle}>Try on virtual glasses effortlessly</p>
 
-        <div style={styles.buttonGroup}>
-          <button style={styles.filledButton} onClick={() => navigate("/login")}>
-            Sign In
-          </button>
+      <div style={styles.buttonGroup}>
+        <button style={styles.filledButton} onClick={() => navigate("/login")}>
+          Sign In
+        </button>
 
-          <button
-            style={styles.outlinedButton}
-            onClick={() => navigate("/register")}
-          >
-            Create Account
-          </button>
-        </div>
+        <button
+          style={styles.outlinedButton}
+          onClick={() => navigate("/register")}
+        >
+          Create Account
+        </button>
       </div>
     </div>
   );
