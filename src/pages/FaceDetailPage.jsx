@@ -52,51 +52,11 @@ const FaceDetailPage = () => {
           ))}
         </ul>
       </div>
-      <div style={styles.navbar}>
-        <TabButton
-            icon={<IoMdInformationCircle size={24} />}
-            label="Info"
-            active={location.pathname === "/info"}
-            onClick={() => navigate("/info")}
-            />
-        <TabButton
-          icon={<GrRobot size={24} />}
-          label="AI"
-          active={location.pathname === "/ai"}
-          onClick={() => navigate("/ai")}
-        />
-        <TabButton
-          icon={<RiGlassesFill size={24} />}
-          label="Try On"
-          active={location.pathname === "/tryon"}
-          onClick={() => navigate("/tryon")}
-        />
-        <TabButton
-          icon={<AiOutlineUser size={24} />}
-          label="Profile"
-          active={location.pathname === "/profile"}
-          onClick={() => navigate("/profile")}
-        />
-        </div>
     </div>
   );
 };
 
 export default FaceDetailPage;
-
-const TabButton = ({ icon, label, active, onClick }) => (
-    <div
-      onClick={onClick}
-      style={{
-        ...styles.navItem,
-        color: active ? "#5b4bff" : "#666",
-        fontWeight: active ? "600" : "400",
-      }}
-    >
-      <div style={{ fontSize: "20px" }}>{icon}</div>
-      <div style={{ fontSize: "12px", marginTop: "4px" }}>{label}</div>
-    </div>
-  );  
 
 const styles = {
   wrapper: {
