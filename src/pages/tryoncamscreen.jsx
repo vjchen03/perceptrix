@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
 export default function TryOnCamScreen() {
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState(null);
 
   const handleTakePhoto = () => {
     alert('Camera functionality is not supported in web. Use a file upload input instead.');
   };
 
-  const handlePickImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePickImage = (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const uri = URL.createObjectURL(file);
@@ -17,7 +17,7 @@ export default function TryOnCamScreen() {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.grid}>
       <h1 style={styles.title}>Upload or Take a Photo</h1>
 
       <button style={styles.button} onClick={handleTakePhoto}>
@@ -46,7 +46,7 @@ export default function TryOnCamScreen() {
 const styles = {
   container: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
@@ -84,6 +84,6 @@ const styles = {
     height: '240px',
     borderRadius: '12px',
     border: '2px solid #ccc',
-    objectFit: 'contain' as const,
+    objectFit: 'contain',
   },
 };

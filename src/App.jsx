@@ -8,6 +8,7 @@ import { IoMdInformationCircle } from "react-icons/io";
 import { GrRobot } from "react-icons/gr";
 import { RiGlassesFill } from "react-icons/ri";
 import { AiOutlineUser } from "react-icons/ai";
+import FramesScreen from "./pages/tryonframes";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/info" element={<InfoPage />} />
           <Route path="/face/:shape" element={<FaceDetailPage />} />
-          <Route path="/tryon" element={<InfoPage />} />
+          <Route path="/tryon" element={<FramesScreen />} />
         </Routes>
         <div style={styles.navbar}>
           <TabButton

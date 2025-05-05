@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const faceShapes = [
   { label: "Oval Face", img: "/face-shapes/oval.jpg" },
@@ -12,19 +12,7 @@ const faceShapes = [
 
 
 const InfoPage = () => {
-  const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const saved = localStorage.getItem("selectedFaceShape");
-    if (saved) setSelected(saved);
-  }, []);
-
-  const handleSelect = (label) => {
-    setSelected(label);
-    localStorage.setItem("selectedFaceShape", label);
-  };
 
   return (
     <>
@@ -34,13 +22,8 @@ const InfoPage = () => {
         {faceShapes.map((shape) => (
           <div
             key={shape.label}
-            style={{
-              ...styles.card,
-              border: selected === shape.label ? "2px solid #5b4bff" : "none",
-            }}
+            style={styles.card}
             onClick={() => {
-              setSelected(shape.label);
-              localStorage.setItem("selectedFaceShape", shape.label);
               const routeKey = shape.label.split(" ")[0].toLowerCase(); // e.g., "Oval Face" → "oval"
               navigate(`/face/${routeKey}`);
             }}
