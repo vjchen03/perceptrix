@@ -36,6 +36,7 @@ export function TryOnFramesGrid() {
 
 
 export function TryOnFrame() {
+  const [isSaved, setIsSaved] = React.useState(false);
   const navigate = useNavigate();
   const canvasRef = useRef(null);
   const frame = useParams().frame;
@@ -115,19 +116,27 @@ export function TryOnFrame() {
   }, [frameObject]);
 
   return <>
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <canvas ref={canvasRef} style={styles.canvas} />
-      <h1 style={styles.canvasTitle}>{frameObject.name}</h1>
-    {/* save to profile and back button */}
-      <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-        <button className="btn btn-primary">
-          Save to Profile
-        </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/tryon')}>
-          Back
-        </button>
-      </div> 
-    </div>
+   <div style={styles.topBar}>
+    <button onClick={() => navigate("/tryon")} style={styles.backButton}>
+      ← Back
+    </button>
+
+    <button
+      onClick={() => setIsSaved(!isSaved)}
+      style={{
+        ...styles.saveButton,
+        backgroundColor: isSaved ? '#4caf50' : '#f0f0f0',
+        color: isSaved ? '#fff' : '#000',
+      }}
+    >
+      {isSaved ? '✔ Saved' : 'Save'}
+    </button>
+  </div>
+
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '60px' }}>
+    <canvas ref={canvasRef} style={styles.canvas} />
+    <h1 style={styles.canvasTitle}>{frameObject.name}</h1>
+  </div>
   </>
 }
 
@@ -185,5 +194,34 @@ const styles = {
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: '20px',
+  },
+  topBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '20px',
+    width: '100%',
+    boxSizing: 'border-box',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  backButton: {
+    padding: '10px 16px',
+    fontSize: '16px',
+    borderRadius: '8px',
+    backgroundColor: '#f0f0f0',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+  },
+  saveButton: {
+    padding: '10px 16px',
+    fontSize: '16px',
+    borderRadius: '8px',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
   }
 };
