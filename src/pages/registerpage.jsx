@@ -89,12 +89,13 @@ const styles = {
     width: "100%",
     maxWidth: "430px",
     margin: "0 auto",
-    minHeight: "100vh",
+    height: "100%",
     backgroundColor: "#fff",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
     fontFamily: "sans-serif",
+    paddingTop: "1.5rem"
   },
   topBar: {
     display: "flex",

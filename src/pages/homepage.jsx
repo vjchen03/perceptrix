@@ -21,27 +21,29 @@ const HomePage = () => {
   if (checkingAuth) return null; 
 
   return (
-    <div style={styles.content}>
-      <img
-        src="/home/homepage-icon.jpg"
-        alt="Virtual glasses illustration"
-        style={styles.image}
-      />
+    <div style={styles.wrapper}>
+      <div style={styles.content}>
+        <img
+          src="/home/homepage-icon.jpg"
+          alt="Virtual glasses illustration"
+          style={styles.image}
+        />
 
-      <h1 style={styles.title}>Perceptrix</h1>
-      <p style={styles.subtitle}>Try on virtual glasses effortlessly</p>
+        <h1 style={styles.title}>Perceptrix</h1>
+        <p style={styles.subtitle}>Try on virtual glasses effortlessly</p>
 
-      <div style={styles.buttonGroup}>
-        <button style={styles.filledButton} onClick={() => navigate("/login")}>
-          Sign In
-        </button>
+        <div style={styles.buttonGroup}>
+          <button style={styles.filledButton} onClick={() => navigate("/login")}>
+            Sign In
+          </button>
 
-        <button
-          style={styles.outlinedButton}
-          onClick={() => navigate("/register")}
-        >
-          Create Account
-        </button>
+          <button
+            style={styles.outlinedButton}
+            onClick={() => navigate("/register")}
+          >
+            Create Account
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -54,26 +56,31 @@ const styles = {
   wrapper: {
     width: "100%",
     maxWidth: "430px",
-    height: "100vh",
+    height: "100%",
     margin: "0 auto",
     backgroundColor: "#fff",
     fontFamily: "sans-serif",
     display: "flex",
     justifyContent: "center",        
     alignItems: "center",
-    padding: "0 1.5rem",
+    padding: "2rem",
     boxSizing: "border-box",
+    overflow: "auto", // Add overflow handling
+    paddingTop: "4.5rem",
   },
   content: {
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
     textAlign: "center",
     width: "100%",
+    maxHeight: "100%", // Ensure content doesn't exceed container
   },
   image: {
-    width: "400px",                  
-    height: "250px",
+    width: "100%", // Make image responsive
+    maxWidth: "400px",
+    height: "auto", // Allow height to adjust proportionally
     objectFit: "contain",
     marginBottom: "1.5rem",
   },
