@@ -4,6 +4,9 @@ import LoginPage from "./pages/loginpage";
 import RegisterPage from "./pages/registerpage";
 import InfoPage from "./pages/infopage";
 import FaceDetailPage from "./pages/FaceDetailPage";
+import CameraPage from "./pages/ai/CameraPage";
+import LoadingPage from "./pages/ai/LoadingPage";
+import ResultsPage from "./pages/ai/ResultsPage";
 import { IoMdInformationCircle } from "react-icons/io";
 import { GrRobot } from "react-icons/gr";
 import { RiGlassesFill } from "react-icons/ri";
@@ -20,6 +23,9 @@ function App() {
           <Route path="/info" element={<InfoPage />} />
           <Route path="/face/:shape" element={<FaceDetailPage />} />
           <Route path="/tryon" element={<InfoPage />} />
+          <Route path="/ai" element={<CameraPage />} />
+          <Route path="/aicamera/loading" element={<LoadingPage />} />
+          <Route path="/aicamera/results" element={<ResultsPage />} />
         </Routes>
         <div style={styles.navbar}>
           <TabButton
