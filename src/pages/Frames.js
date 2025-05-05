@@ -1,5 +1,5 @@
 // offset corresponds to the percentage of ear-distance
-const imageDir = '/public/frames/';
+const imageDir = '/frames/';
 
 export const FRAMES = [
   {
