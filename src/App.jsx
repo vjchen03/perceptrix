@@ -24,8 +24,8 @@ function App() {
           <Route path="/face/:shape" element={<FaceDetailPage />} />
           <Route path="/tryon" element={<InfoPage />} />
           <Route path="/ai" element={<CameraPage />} />
-          <Route path="/aicamera/loading" element={<LoadingPage />} />
-          <Route path="/aicamera/results" element={<ResultsPage />} />
+          <Route path="/ai/loading" element={<LoadingPage />} />
+          <Route path="/ai/results" element={<ResultsPage />} />
         </Routes>
         <div style={styles.navbar}>
           <TabButton

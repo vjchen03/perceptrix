@@ -1,42 +1,43 @@
-import { useEffect } from "react";
+// src/pages/ai/LoadingPage.jsx
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { analyzeFace } from "../../utils/azureFace";
 
 export default function LoadingPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const imageData = state?.imageData;
 
   useEffect(() => {
-    const runAI = async () => {
-      const imageUri = state?.imageUri;
-      if (!imageUri) return;
+    const timer = setTimeout(() => {
+      navigate("/ai/results", { state: { imageData } });
+    }, 5000);
 
-      const results = await analyzeFace(imageUri);
-      if (results?.length > 0) {
-        navigate("/aicamera/results", {
-          state: {
-            imageUri,
-            landmarks: results[0].faceLandmarks,
-            faceRectangle: results[0].faceRectangle,
-          },
-        });
-      } else {
-        navigate("/aicamera/results", {
-          state: {
-            imageUri,
-            error: "No face detected.",
-          },
-        });
-      }
-    };
-
-    runAI();
-  }, []);
+    return () => clearTimeout(timer);
+  }, [imageData, navigate]);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "4rem" }}>
-      <div className="spinner" /> {/* Optional CSS spinner */}
-      <p>Analyzing your face shape with AI...</p>
+    <div style={styles.container}>
+      <div className="spinner" />
+      <p style={{ marginTop: 16 }}>Analyzing your face shape...</p>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
+    fontFamily: "sans-serif",
+  },
+  spinner: {
+    width: 50,
+    height: 50,
+    border: "5px solid #ccc",
+    borderTop: "5px solid #5b4bff",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+  },
+};

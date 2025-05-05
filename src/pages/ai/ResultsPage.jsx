@@ -1,38 +1,33 @@
+// src/pages/ai/ResultsPage.jsx
+import React from "react";
 import { useLocation } from "react-router-dom";
-
-function classifyFaceShape(landmarks) {
-  // Same logic as before...
-  // Copy from your existing function
-  return "Oval"; // placeholder
-}
 
 export default function ResultsPage() {
   const { state } = useLocation();
-  const { imageUri, landmarks, error } = state || {};
-  const shape = landmarks ? classifyFaceShape(landmarks) : "Unknown";
+  const imageUri = state?.imageData;
 
   return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-      <h2>AI Face Analysis</h2>
-      {imageUri && <img src={imageUri} alt="result" style={{ width: 240, height: 240 }} />}
-      {error ? (
-        <p style={{ color: "red" }}>{error}</p>
+    <div style={styles.container}>
+      <h2>Results</h2>
+      {imageUri ? (
+        <img src={imageUri} alt="Result" style={styles.image} />
       ) : (
-        <>
-          <p>Face Shape: {shape}</p>
-          <h4>Facial Landmarks (sample):</h4>
-          <ul>
-            {landmarks &&
-              Object.entries(landmarks)
-                .slice(0, 5)
-                .map(([key, val]) => (
-                  <li key={key}>
-                    {key}: x={val.x.toFixed(1)}, y={val.y.toFixed(1)}
-                  </li>
-                ))}
-          </ul>
-        </>
+        <p>No image available.</p>
       )}
     </div>
   );
 }
+
+const styles = {
+  container: {
+    paddingTop: "2rem",
+    textAlign: "center",
+    fontFamily: "sans-serif",
+  },
+  image: {
+    marginTop: "1rem",
+    maxWidth: "90%",
+    borderRadius: "12px",
+    border: "2px solid #ccc",
+  },
+};
