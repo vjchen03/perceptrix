@@ -1,6 +1,6 @@
-[CS160 Perceptrix Demo Poster.pdf](https://github.com/user-attachments/files/20052831/CS160.Perceptrix.Demo.Poster.pdf)
+![Research Poster](./public/Poster.png)
 
-# React + Vite
+# LOCAL SETUP (React + Vite)
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
