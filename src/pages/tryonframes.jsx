@@ -200,6 +200,16 @@ export function TryOnFrame() {
   </div>
 
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '60px' }}>
+    {isProcessing && (
+      <div style={styles.processingOverlay}>
+        <div style={styles.processingSpinner}></div>
+        <p style={styles.processingText}>Generating your try-on...</p>
+      </div>
+    )}
+
+    <canvas ref={canvasRef} style={styles.canvas} />
+    <h1 style={styles.canvasTitle}>{frameObject?.name}</h1>
+
     <div style={styles.changePhotoContainer}>
       <button 
         onClick={() => navigate('/photo-selection')} 
@@ -208,18 +218,8 @@ export function TryOnFrame() {
         Change Photo
       </button>
     </div>
-    
-    {isProcessing && (
-      <div style={styles.processingOverlay}>
-        <div style={styles.processingSpinner}></div>
-        <p style={styles.processingText}>Generating your try-on...</p>
-      </div>
-    )}
-    
-    <canvas ref={canvasRef} style={styles.canvas} />
-    <h1 style={styles.canvasTitle}>{frameObject?.name}</h1>
   </div>
-  </>
+</>
 }
 
 // Add these new styles to your existing styles object
@@ -331,21 +331,25 @@ const styles = {
     fontWeight: '600',
   },
   changePhotoContainer: {
+    padding: '20px',
     marginBottom: '20px',
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
   },
   changePhotoButton: {
-    padding: '10px 16px',
-    fontSize: '16px',
-    borderRadius: '8px',
-    backgroundColor: '#4285f4',
-    color: '#fff',
-    fontWeight: '600',
+    backgroundColor: '#5b4bff',
+    color: 'white',
     border: 'none',
+    borderRadius: '25px',
+    padding: '0.75rem 0.5rem',
+    fontSize: '14px',
+    fontWeight: '500',
     cursor: 'pointer',
-  },
+    width: '100%',
+    maxWidth: '300px',
+    textAlign: 'center',
+  },  
   processingOverlay: {
     position: 'absolute',
     top: '50%',
