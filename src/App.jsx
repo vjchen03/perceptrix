@@ -11,24 +11,41 @@ import { IoMdInformationCircle } from "react-icons/io";
 import { GrRobot } from "react-icons/gr";
 import { RiGlassesFill } from "react-icons/ri";
 import { AiOutlineUser } from "react-icons/ai";
-import { TryOnFramesGrid, TryOnFrame }from "./pages/tryonframes";
+import { TryOnFramesGrid, TryOnFrame } from "./pages/tryonframes";
+import PhotoSelectionPage from "./pages/PhotoSelectionPage";
+import ProfilePage from "./pages/profilepage";
 
 function App() {
   return (
     <Router>
-      <div style={styles.wrapper}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} /> 
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/info" element={<InfoPage />} />
-          <Route path="/face/:shape" element={<FaceDetailPage />} />
-          <Route path="/tryon" element={<TryOnFramesGrid />} />
-          <Route path="/tryon/:frame" element={<TryOnFrame />} />
-          <Route path="/ai" element={<CameraPage />} />
-          <Route path="/ai/loading" element={<LoadingPage />} />
-          <Route path="/ai/results" element={<ResultsPage />} />
-        </Routes>
+      <AppContent />
+    </Router>
+  );
+}
+
+// Separate component to use hooks
+function AppContent() {
+  const location = useLocation();
+  const hideNavbar = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/register";
+  
+  return (
+    <div style={styles.wrapper}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} /> 
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/info" element={<InfoPage />} />
+        <Route path="/face/:shape" element={<FaceDetailPage />} />
+        <Route path="/photo-selection" element={<PhotoSelectionPage />} />
+        <Route path="/tryon" element={<TryOnFramesGrid />} />
+        <Route path="/tryon/:frame" element={<TryOnFrame />} />
+        <Route path="/ai" element={<CameraPage />} />
+        <Route path="/aicamera/loading" element={<LoadingPage />} />
+        <Route path="/aicamera/results" element={<ResultsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Routes>
+      
+      {!hideNavbar && (
         <div style={styles.navbar}>
           <TabButton
             icon={<IoMdInformationCircle size={24} />}
@@ -43,7 +60,7 @@ function App() {
           <TabButton
             icon={<RiGlassesFill size={24} />}
             label="Try On"
-            path="/tryon"
+            path="/photo-selection"
           />
           <TabButton
             icon={<AiOutlineUser size={24} />}
@@ -51,9 +68,8 @@ function App() {
             path="/profile"
           />
         </div>
-      </div>
-
-    </Router>
+      )}
+    </div>
   );
 }
 
@@ -85,6 +101,9 @@ const styles = {
     minHeight: "100vh",
     paddingBottom: "80px",
     position: "relative",
+    border: "1.5px solid #ddd",
+    borderRadius: "25px",
+    boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
   },
   navbar: {
     position: "fixed",
