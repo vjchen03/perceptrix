@@ -1,86 +1,62 @@
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { faceData } from "../facedata";
-
-function classifyFaceShape(landmarks) {
-  // ... existing code ...
-  return "Oval"; // placeholder
-}
 
 export default function ResultsPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { imageUri, landmarks, error, faceRectangle } = state || {};
-  const shape = landmarks ? classifyFaceShape(landmarks) : "Unknown";
-  
-  // Get recommendations from faceData
-  const recommendations = shape && faceData[shape.toLowerCase()] 
-    ? faceData[shape.toLowerCase()].recommendedGlasses 
-    : [];
+  const { imageData, analysis, error } = state || {};
+
+  const handleRetry = () => {
+    navigate("/ai");
+  };
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Face Analysis Results</h2>
-      </div>
-      
-      <div style={styles.resultCard}>
-        {imageUri && (
-          <div style={styles.imageContainer}>
-            <img src={imageUri} alt="Your face" style={styles.faceImage} />
-          </div>
+      <h2 style={styles.title}>Your Face Shape Results</h2>
+
+      <p style={styles.subtitle}>
+        Based on your facial features, here's what we found:
+      </p>
+
+      <div style={styles.card}>
+        {/* Image */}
+        {imageData && (
+          <img src={imageData} alt="Your face" style={styles.image} />
         )}
-        
-        {error ? (
-          <div style={styles.errorContainer}>
-            <div style={styles.errorIcon}>❌</div>
-            <p style={styles.errorText}>{error}</p>
-            <button 
-              onClick={() => navigate("/ai")} 
-              style={styles.tryAgainButton}
-            >
-              Try Again
-            </button>
-          </div>
-        ) : (
-          <div style={styles.resultsContainer}>
-            <div style={styles.resultItem}>
-              <span style={styles.resultLabel}>Face Shape:</span>
-              <span style={styles.resultValue}>{shape}</span>
+
+        {/* Info */}
+        <div style={styles.details}>
+          {analysis?.["face shape"] && (
+            <div style={styles.block}>
+              <h3 style={styles.label}>Face Shape</h3>
+              <p style={styles.resultText}>{analysis["face shape"]}</p>
             </div>
-            
-            {shape !== "Unknown" && (
-              <>
-                <div style={styles.divider}></div>
-                
-                <div style={styles.recommendationsSection}>
-                  <h3 style={styles.recommendationsTitle}>Recommended Frames</h3>
-                  <div style={styles.recommendationsList}>
-                    {recommendations.map((style, index) => (
-                      <div key={index} style={styles.recommendationItem}>
-                        {style}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <button 
-                  onClick={() => navigate("/photo-selection")} 
-                  style={styles.tryOnButton}
-                >
-                  Try On Glasses
-                </button>
-              </>
-            )}
-          </div>
-        )}
+          )}
+
+          {Array.isArray(analysis?.["facial features"]) && (
+            <div style={styles.block}>
+              <h3 style={styles.label}>Facial Features</h3>
+              <ul style={styles.list}>
+                {analysis["facial features"].map((f, i) => (
+                  <li key={i} style={styles.listItem}>{f}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-      
-      <button 
-        onClick={() => navigate("/ai")} 
-        style={styles.backButton}
-      >
-        ← Back to Camera
-      </button>
+
+      {/* Reasoning */}
+      {analysis?.reasoning && (
+        <div style={styles.reasoningBox}>
+          <em>{analysis.reasoning}</em>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && <p style={styles.error}>❌ {error}</p>}
+
+      <button onClick={handleRetry} style={styles.button}>🔁 Try Another Photo</button>
     </div>
   );
 }
@@ -90,141 +66,95 @@ const styles = {
     maxWidth: "430px",
     margin: "0 auto",
     padding: "2rem 1.5rem",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  header: {
     textAlign: "center",
-    marginBottom: "1.5rem",
-    width: "100%",
+    fontFamily: "sans-serif",
   },
   title: {
     fontSize: "28px",
     fontWeight: "700",
     color: "#333",
-    margin: 0,
-  },
-  resultCard: {
-    width: "100%",
-    backgroundColor: "white",
-    overflow: "hidden",
-  },
-  imageContainer: {
-    width: "100%",
-    height: "300px",
-    position: "relative",
-    backgroundColor: "#f0f0f0",
-    overflow: "hidden",
-    borderRadius: "18px",
-  },
-  faceImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  faceOverlay: {
-    position: "absolute",
-    border: "2px solid #5b4bff",
-    borderRadius: "8px",
-    boxShadow: "0 0 0 2000px rgba(0,0,0,0.15)",
-    pointerEvents: "none",
-  },
-  resultsContainer: {
-    padding: "1.5rem 0rem",
-  },
-  resultItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: "0.5rem",
   },
-  resultLabel: {
+  subtitle: {
     fontSize: "16px",
-    fontWeight: "600",
-    color: "#555",
-  },
-  resultValue: {
-    fontSize: "18px",
-    fontWeight: "700",
-    color: "#5b4bff",
-    backgroundColor: "rgba(91,75,255,0.1)",
-    padding: "0.25rem 0.75rem",
-    borderRadius: "20px",
-  },
-  divider: {
-    height: "1px",
-    backgroundColor: "#eee",
-    margin: "1.5rem 0",
-  },
-  recommendationsSection: {
+    color: "#666",
     marginBottom: "1.5rem",
   },
-  recommendationsTitle: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#333",
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: "16px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+    padding: "1.5rem",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "1.5rem",
+  },
+  image: {
+    width: "220px",
+    height: "220px",
+    borderRadius: "12px",
+    objectFit: "cover",
+    border: "2px solid #eee",
+  },
+  details: {
+    textAlign: "left",
+    width: "100%",
+  },
+  block: {
     marginBottom: "1rem",
   },
-  recommendationsList: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "0.5rem",
-  },
-  recommendationItem: {
-    backgroundColor: "#f5f5ff",
-    color: "#5b4bff",
-    padding: "0.5rem 1rem",
-    borderRadius: "20px",
-    fontSize: "14px",
-    fontWeight: "500",
-    border: "1px solid #e0e0ff",
-  },
-  tryOnButton: {
-    backgroundColor: "#5b4bff",
-    color: "white",
-    border: "none",
-    borderRadius: "25px",
-    padding: "0.75rem",
+  label: {
     fontSize: "16px",
     fontWeight: "600",
-    cursor: "pointer",
-    width: "100%",
+    marginBottom: "0.3rem",
+    color: "#333",
+  },
+  resultText: {
+    backgroundColor: "#f5f5ff",
+    padding: "0.7rem 1rem",
+    borderRadius: "8px",
+    fontSize: "15px",
+    fontWeight: "500",
+    color: "#5b4bff",
+  },
+  list: {
+    listStyleType: "none",
+    paddingLeft: 0,
+    margin: 0,
+  },
+  listItem: {
+    backgroundColor: "#f5f5ff",
+    padding: "0.7rem 1rem",
+    borderRadius: "8px",
+    fontSize: "15px",
+    fontWeight: "500",
+    color: "#5b4bff",
+    marginBottom: "0.5rem",
+  },
+  reasoningBox: {
+    marginTop: "2rem",
+    backgroundColor: "#f0f0ff",
+    borderLeft: "4px solid #5b4bff",
+    padding: "1rem",
+    borderRadius: "8px",
+    fontSize: "14px",
+    color: "#333",
+  },
+  error: {
+    color: "red",
+    fontWeight: "bold",
     marginTop: "1rem",
   },
-  errorContainer: {
-    padding: "2rem 1.5rem",
-    textAlign: "center",
-  },
-  errorIcon: {
-    fontSize: "40px",
-    marginBottom: "1rem",
-  },
-  errorText: {
-    fontSize: "18px",
-    fontWeight: "500",
-    color: "#ff4d4d",
-    marginBottom: "1.5rem",
-  },
-  tryAgainButton: {
+  button: {
+    marginTop: "2rem",
+    padding: "0.75rem 1.5rem",
+    fontSize: "16px",
     backgroundColor: "#5b4bff",
-    color: "white",
+    color: "#fff",
     border: "none",
     borderRadius: "25px",
-    padding: "0.75rem 1.5rem",
-    fontSize: "16px",
-    fontWeight: "600",
     cursor: "pointer",
-  },
-  backButton: {
-    backgroundColor: "#f0f0f0",
-    color: "#333",
-    border: "none",
-    borderRadius: "25px",
-    padding: "0.75rem 1.5rem",
-    fontSize: "16px",
-    fontWeight: "500",
-    cursor: "pointer",
+    boxShadow: "0 4px 8px rgba(91,75,255,0.3)",
   },
 };

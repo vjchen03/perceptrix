@@ -1,20 +1,57 @@
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function CameraPage() {
   const navigate = useNavigate();
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [webcamActive, setWebcamActive] = useState(false);
   const [image, setImage] = useState(null);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setImage(url);
+  const startWebcam = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+      videoRef.current.play();
+      setWebcamActive(true);
+    } catch (err) {
+      alert("Unable to access camera.");
+      console.error(err);
     }
   };
 
-  const handleAnalyze = () => {
-    navigate("/aicamera/loading", { state: { imageUri: image } });
+  const stopWebcam = () => {
+    const stream = videoRef.current?.srcObject;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    setWebcamActive(false);
+  };
+
+  const takePhoto = () => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    const dataURL = canvas.toDataURL("image/jpeg");
+    stopWebcam();
+    navigate("/ai/loading", { state: { imageData: dataURL } });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataURL = reader.result;
+      navigate("/ai/loading", { state: { imageData: dataURL } });
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -25,39 +62,42 @@ export default function CameraPage() {
       </div>
 
       <div style={styles.uploadSection}>
-        {image ? (
+        {!webcamActive ? (
+          <>
+            <div style={styles.dropzone}>
+              <div style={styles.iconPlaceholder}>
+                <span style={styles.cameraIcon}>📷</span>
+              </div>
+              <p style={styles.dropzoneText}>Upload a clear photo of your face or use your webcam</p>
+              <label htmlFor="file-upload" style={styles.uploadButton}>
+                Select Image
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={styles.fileInput}
+              />
+              <button style={{ ...styles.uploadButton, marginTop: "1rem" }} onClick={startWebcam}>
+                Use Webcam
+              </button>
+            </div>
+          </>
+        ) : (
           <div style={styles.previewContainer}>
-            <img src={image} alt="preview" style={styles.previewImage} />
-            <button onClick={() => setImage(null)} style={styles.changeButton}>
-              Change Photo
+            <video ref={videoRef} style={styles.previewImage} />
+            <button onClick={takePhoto} style={styles.analyzeButton}>
+              Take Photo
+            </button>
+            <button onClick={stopWebcam} style={styles.changeButton}>
+              Cancel
             </button>
           </div>
-        ) : (
-          <div style={styles.dropzone}>
-            <div style={styles.iconPlaceholder}>
-              <span style={styles.cameraIcon}>📷</span>
-            </div>
-            <p style={styles.dropzoneText}>Upload a clear photo of your face</p>
-            <label htmlFor="file-upload" style={styles.uploadButton}>
-              Select Image
-            </label>
-          </div>
         )}
-        
-        <input 
-          id="file-upload"
-          type="file" 
-          accept="image/*" 
-          onChange={handleImageUpload} 
-          style={styles.fileInput} 
-        />
       </div>
 
-      {image && (
-        <button onClick={handleAnalyze} style={styles.analyzeButton}>
-          Analyze Face Shape
-        </button>
-      )}
+      <canvas ref={canvasRef} style={{ display: "none" }} />
 
       <div style={styles.infoBox}>
         <h3 style={styles.infoTitle}>How it works</h3>
@@ -166,6 +206,7 @@ const styles = {
     padding: "0.5rem 1rem",
     fontSize: "14px",
     cursor: "pointer",
+    marginTop: "0.5rem",
   },
   analyzeButton: {
     backgroundColor: "#5b4bff",
