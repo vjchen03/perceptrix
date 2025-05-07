@@ -115,6 +115,10 @@ function PhotoSelectionPage() {
           </button>
         )}
       </div>
+
+      {!photo && <p style={{ textAlign: 'center', color: '#666' }}>
+        Position your face perpendicular to the camera, about 3 feet away. Ensure good lighting and look directly at the camera.
+      </p>}
       
       {photo && (
         <div style={styles.proceedContainer}>
