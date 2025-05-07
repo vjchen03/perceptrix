@@ -1,39 +1,50 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Webcam from 'react-webcam';
 
 export default function PhotoSelectionPage() {
-  const navigate = useNavigate();
-  const webcamRef = useRef(null);
+  const [photo, setPhoto] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const webcamRef = useRef(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!cameraActive || !webcamRef.current) return;
-    navigator.mediaDevices.getUserMedia({ video: true }).catch((err) => {
-      console.error("Webcam error:", err.message);
-      alert("Unable to access camera: " + err.message);
-      setCameraActive(false);
-    });
-  }, [cameraActive]);
-
-  const capturePhoto = () => {
-    const imageSrc = webcamRef.current?.getScreenshot();
-    if (imageSrc) {
-      sessionStorage.setItem('tryOnPhoto', imageSrc);
-      setCameraActive(false);
-      navigate('/tryon');
-    }
+  const videoConstraints = {
+    width: 640,
+    height: 480,
+    facingMode: 'user',
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = (event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
-      sessionStorage.setItem('tryOnPhoto', reader.result);
-      navigate('/tryon');
+    reader.onloadend = (e) => {
+      setPhoto(e.target.result);
+      setCameraActive(false);
     };
     reader.readAsDataURL(file);
+  };
+
+  const toggleCamera = () => {
+    setCameraActive(!cameraActive);
+    if (cameraActive) setPhoto(null);
+  };
+
+  const capturePhoto = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setPhoto(imageSrc);
+      setCameraActive(false);
+    }
+  }, []);
+
+  const proceedToTryOn = () => {
+    if (photo) {
+      sessionStorage.setItem('tryOnPhoto', photo);
+      navigate('/tryon');
+    } else {
+      alert('Please select or take a photo first');
+    }
   };
 
   return (
@@ -41,12 +52,12 @@ export default function PhotoSelectionPage() {
       <div style={styles.header}>
         <h2 style={styles.title}>Choose Your Photo</h2>
         <p style={styles.subtitle}>
-          Upload a photo or use your camera to begin
+          Find the perfect pair of glasses by trying them on virtually!
         </p>
       </div>
 
       <div style={styles.uploadSection}>
-        {!cameraActive ? (
+        {!cameraActive && !photo && (
           <>
             <div style={styles.dropzone}>
               <div style={styles.iconPlaceholder}>
@@ -58,47 +69,59 @@ export default function PhotoSelectionPage() {
             </div>
 
             <div style={styles.buttonGroup}>
-              <label htmlFor="file-upload" style={styles.uploadButton}>
+              <label htmlFor="photo-upload" style={styles.uploadButton}>
                 Select Image
               </label>
               <input
-                id="file-upload"
+                id="photo-upload"
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleFileUpload}
                 style={styles.fileInput}
               />
-              <button
-                style={styles.uploadButton}
-                onClick={() => setCameraActive(true)}
-              >
+              <button style={styles.uploadButton} onClick={toggleCamera}>
                 Use Webcam
               </button>
             </div>
           </>
-        ) : (
+        )}
+
+        {cameraActive && (
           <div style={styles.previewContainer}>
             <Webcam
+              audio={false}
               ref={webcamRef}
               screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
               mirrored
               style={styles.previewImage}
-              videoConstraints={{ facingMode: 'user' }}
             />
             <button onClick={capturePhoto} style={styles.analyzeButton}>
-              Capture Photo
+              Take Photo
             </button>
-            <button onClick={() => setCameraActive(false)} style={styles.changeButton}>
+            <button onClick={toggleCamera} style={styles.changeButton}>
               Cancel
             </button>
           </div>
         )}
-      </div>
 
+        {photo && (
+          <div style={styles.previewContainer}>
+            <img src={photo} alt="Uploaded" style={styles.previewImage} />
+            <button onClick={proceedToTryOn} style={styles.analyzeButton}>
+              Try On Frames →
+            </button>
+            <button onClick={() => setPhoto(null)} style={styles.changeButton}>
+              Change Photo
+            </button>
+          </div>
+        )}
+      </div>
       <div style={styles.infoBox}>
         <h3 style={styles.infoTitle}>How it works</h3>
         <p style={styles.infoText}>
-          Position your face perpendicular to the camera, about 3 feet away. Ensure good lighting and look directly at the camera.
+        Position your face perpendicular to the camera, about 3 feet away.
+        Ensure good lighting and look directly at the camera.
         </p>
       </div>
     </div>
@@ -114,7 +137,6 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     backgroundColor: '#fff',
-    fontFamily: 'sans-serif',
   },
   header: {
     textAlign: 'center',
@@ -184,8 +206,7 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    width: '100%',
-    maxWidth: '300px',
+    display: 'inline-block',
     textAlign: 'center',
   },
   previewContainer: {
@@ -226,6 +247,13 @@ const styles = {
     width: '100%',
     maxWidth: '300px',
     boxShadow: '0 4px 8px rgba(91,75,255,0.3)',
+  },
+  blurb: {
+    fontSize: '14px',
+    color: '#666',
+    textAlign: 'center',
+    marginTop: '0.5rem',
+    padding: '0 1rem',
   },
   infoBox: {
     backgroundColor: '#f5f5ff',
