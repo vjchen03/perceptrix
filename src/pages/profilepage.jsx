@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { useAuth } from "../context/authContext";
+import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -28,6 +29,24 @@ const ProfilePage = () => {
   if (!user) {
     return null; // Return null while the effect handles the redirect
   }
+
+  // load saved images in firebase storage under /frames/
+  const storage = getStorage();
+  const framesRef = ref(storage, 'images/');
+  const [frames, setFrames] = React.useState([]);
+  useEffect(() => {
+    const fetchFrames = async () => {
+      try {
+        const res = await listAll(framesRef);
+        const urls = await Promise.all(res.items.map(item => getDownloadURL(item)));
+        setFrames(urls);
+      } catch (error) {
+        console.error("Error fetching frames:", error);
+      }
+    };
+    fetchFrames();
+  }, []);
+  console.log(frames)
 
   return (
     <div style={styles.wrapper}>
@@ -70,6 +89,38 @@ const ProfilePage = () => {
           Log Out
         </button>
       </div>
+      {/* frames with names, arragned in a grid */}
+      {frames.length > 0 && (
+        // <div>
+        //   <h1 style={styles.title}>Glasses Try On</h1>
+        //   <div style={styles.grid}>
+        //     {FRAMES.map((frame) => (
+        //       <div
+        //         key={frame.name}
+        //         style={{ ...styles.card }}
+        //         onClick={() => navigate('/tryon/' + frame.name.toLowerCase())} // Navigate to the tryon page with the frame name
+        //       >
+        //         <img
+        //           src={frame.image}
+        //           alt={frame.name}
+        //           style={styles.image}
+        //         />
+        //         <div style={styles.overlay}>
+        //           <p style={styles.glassesName}>{frame.name}</p>
+        //         </div>
+        //       </div>
+        //     ))}
+        //   </div>
+        // </div>
+        <div style={{ marginTop: "2rem" }}>
+          <h3 style={styles.sectionTitle}>Saved Frames</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "1rem" }}>
+            {frames.map((frame, index) => (
+              <img key={index} src={frame} alt={`Frame ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

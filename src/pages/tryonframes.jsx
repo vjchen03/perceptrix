@@ -4,6 +4,7 @@ import '@tensorflow/tfjs-backend-webgl';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FRAMES } from './Frames';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
 
 export function TryOnFramesGrid() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ export function TryOnFramesGrid() {
 }
 
 export function TryOnFrame() {
-  const [isSaved, setIsSaved] = React.useState(false);
+  const [isSaved, setIsSaved] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const navigate = useNavigate();
   const canvasRef = useRef(null);
@@ -64,6 +65,35 @@ export function TryOnFrame() {
       setUserPhoto(photo);
     }
   }, [navigate]);
+
+  useEffect(() => {
+    // if isSaved is true store image in firebase, with the frame name as the ID, to be displayed on profile section. otherwise delete it from firebase
+    const saveImage = async () => {
+      if (isSaved) {
+        const canvas = canvasRef.current;
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        const blob = await (await fetch(dataUrl)).blob();
+        const storage = getStorage();
+        const storageRef = ref(storage, `images/${frameObject.name}.jpg`);
+        
+        uploadBytes(storageRef, blob).then(() => {
+          console.log('Image saved successfully!');
+        }).catch((error) => {
+          console.error('Error saving image:', error);
+        });
+      } else if (isSaved === false) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `images/${frameObject.name}.jpg`);
+
+        deleteObject(storageRef).then(() => {
+          console.log('Image deleted successfully!');
+        }).catch((error) => {
+          console.error('Error deleting image:', error);
+        });
+      }
+    }
+    saveImage();
+  }, [isSaved]);
 
   useEffect(() => {
     if (!userPhoto || !frameObject) return;
