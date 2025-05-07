@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { getAuth } from 'firebase/auth';
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
 import '@tensorflow/tfjs-backend-webgl';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -69,12 +70,19 @@ export function TryOnFrame() {
   useEffect(() => {
     // if isSaved is true store image in firebase, with the frame name as the ID, to be displayed on profile section. otherwise delete it from firebase
     const saveImage = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
       if (isSaved) {
         const canvas = canvasRef.current;
         const dataUrl = canvas.toDataURL('image/jpeg');
         const blob = await (await fetch(dataUrl)).blob();
+        const userPath = `users/${user.uid}/images/${frameObject.name}.jpg`;
         const storage = getStorage();
-        const storageRef = ref(storage, `images/${frameObject.name}.jpg`);
+        const storageRef = ref(storage, userPath);
         
         uploadBytes(storageRef, blob).then(() => {
           console.log('Image saved successfully!');
