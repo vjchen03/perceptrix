@@ -1,13 +1,26 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { getAuth } from 'firebase/auth';
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
 import '@tensorflow/tfjs-backend-webgl';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FRAMES } from './Frames';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
 
 export function TryOnFramesGrid() {
   const navigate = useNavigate();
+  const [userPhoto, setUserPhoto] = useState(null);
+  
+  useEffect(() => {
+    // Get the photo from sessionStorage
+    const photo = sessionStorage.getItem('tryOnPhoto');
+    if (!photo) {
+      // If no photo is found, redirect to photo selection page
+      navigate('/photo-selection');
+    } else {
+      setUserPhoto(photo);
+    }
+  }, [navigate]);
 
   return (
     <div>
@@ -34,21 +47,72 @@ export function TryOnFramesGrid() {
   );
 }
 
-
 export function TryOnFrame() {
-  const [isSaved, setIsSaved] = React.useState(false);
+  const [isSaved, setIsSaved] = React.useState(null);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const navigate = useNavigate();
   const canvasRef = useRef(null);
   const frame = useParams().frame;
   const frameObject = FRAMES.find((f) => f.name.toLowerCase() === frame.toLowerCase());
+  const [userPhoto, setUserPhoto] = useState(null);
+  
+  useEffect(() => {
+    // Get the photo from sessionStorage
+    const photo = sessionStorage.getItem('tryOnPhoto');
+    if (!photo) {
+      // If no photo is found, redirect to photo selection page
+      navigate('/photo-selection');
+    } else {
+      setUserPhoto(photo);
+    }
+  }, [navigate]);
 
   useEffect(() => {
+    // if isSaved is true store image in firebase, with the frame name as the ID, to be displayed on profile section. otherwise delete it from firebase
+    const saveImage = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+      if (isSaved) {
+        const canvas = canvasRef.current;
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        const blob = await (await fetch(dataUrl)).blob();
+        const userPath = `users/${user.uid}/images/${frameObject.name}.jpg`;
+        const storage = getStorage();
+        const storageRef = ref(storage, userPath);
+        
+        uploadBytes(storageRef, blob).then(() => {
+          console.log('Image saved successfully!');
+        }).catch((error) => {
+          console.error('Error saving image:', error);
+        });
+      } else if (isSaved === false) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `images/${frameObject.name}.jpg`);
+
+        deleteObject(storageRef).then(() => {
+          console.log('Image deleted successfully!');
+        }).catch((error) => {
+          console.error('Error deleting image:', error);
+        });
+      }
+    }
+    saveImage();
+  }, [isSaved]);
+
+  useEffect(() => {
+    if (!userPhoto || !frameObject) return;
+    
     const drawGlassesOnCanvas = async () => {
+      setIsProcessing(true);
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
 
       const faceImage = new Image();
-      faceImage.src = '/defaultface.png';
+      faceImage.src = userPhoto;
 
       const glassesImage = new Image();
       glassesImage.src = frameObject.image;
@@ -110,10 +174,12 @@ export function TryOnFrame() {
         ctx.drawImage(glassesImage, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);
         ctx.restore();
       }
+      // Set processing to false when done
+      setIsProcessing(false);
     };
 
     drawGlassesOnCanvas();
-  }, [frameObject]);
+  }, [frameObject, userPhoto]);
 
   return <>
    <div style={styles.topBar}>
@@ -134,14 +200,30 @@ export function TryOnFrame() {
   </div>
 
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '60px' }}>
+    <div style={styles.changePhotoContainer}>
+      <button 
+        onClick={() => navigate('/photo-selection')} 
+        style={styles.changePhotoButton}
+      >
+        Change Photo
+      </button>
+    </div>
+    
+    {isProcessing && (
+      <div style={styles.processingOverlay}>
+        <div style={styles.processingSpinner}></div>
+        <p style={styles.processingText}>Generating your try-on...</p>
+      </div>
+    )}
+    
     <canvas ref={canvasRef} style={styles.canvas} />
-    <h1 style={styles.canvasTitle}>{frameObject.name}</h1>
+    <h1 style={styles.canvasTitle}>{frameObject?.name}</h1>
   </div>
   </>
 }
 
+// Add these new styles to your existing styles object
 const styles = {
-  
   title: {
     fontSize: '32px',
     fontWeight: 'bold',
@@ -223,5 +305,77 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     transition: 'all 0.3s ease',
-  }
+  },
+  uploadContainer: {
+    marginBottom: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  uploadButton: {
+    padding: '10px 16px',
+    fontSize: '16px',
+    borderRadius: '8px',
+    backgroundColor: '#4285f4',
+    color: '#fff',
+    fontWeight: '600',
+    cursor: 'pointer',
+    textAlign: 'center',
+  },
+  fileInput: {
+    display: 'none',
+  },
+  uploadSuccess: {
+    color: '#4caf50',
+    marginTop: '8px',
+    fontWeight: '600',
+  },
+  changePhotoContainer: {
+    marginBottom: '20px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  changePhotoButton: {
+    padding: '10px 16px',
+    fontSize: '16px',
+    borderRadius: '8px',
+    backgroundColor: '#4285f4',
+    color: '#fff',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+  },
+  processingOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: '20px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  processingSpinner: {
+    width: '40px',
+    height: '40px',
+    border: '4px solid rgba(91, 75, 255, 0.1)',
+    borderRadius: '50%',
+    borderTop: '4px solid #5b4bff',
+    animation: 'spin 1s linear infinite',
+    marginBottom: '12px',
+  },
+  processingText: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#333',
+  },
+  '@keyframes spin': {
+    '0%': { transform: 'rotate(0deg)' },
+    '100%': { transform: 'rotate(360deg)' },
+  },
 };

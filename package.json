@@ -12,6 +12,7 @@
   "dependencies": {
     "@tensorflow-models/face-landmarks-detection": "^1.0.6",
     "@tensorflow/tfjs": "^4.22.0",
+    "axios": "^1.9.0",
     "bootstrap": "^5.3.5",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/face_mesh": "^0.4.1633559619",

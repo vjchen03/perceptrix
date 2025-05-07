@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["http://localhost:5173", "https://finalproject-e7d53.web.app"],
+    "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": ["Content-Type", "Authorization", "Content-Length", "User-Agent"]
+  }
+]
