@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function CameraPage() {
@@ -6,19 +6,23 @@ export default function CameraPage() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [webcamActive, setWebcamActive] = useState(false);
-  const [image, setImage] = useState(null);
 
-  const startWebcam = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
-      videoRef.current.play();
-      setWebcamActive(true);
-    } catch (err) {
-      alert("Unable to access camera.");
-      console.error(err);
-    }
-  };
+  useEffect(() => {
+    const enableWebcam = async () => {
+      if (!webcamActive || !videoRef.current) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      } catch (err) {
+        console.error("Webcam error:", err.name, err.message);
+        alert("Unable to access camera: " + err.message);
+        setWebcamActive(false);
+      }
+    };
+
+    enableWebcam();
+  }, [webcamActive]);
 
   const stopWebcam = () => {
     const stream = videoRef.current?.srcObject;
@@ -69,6 +73,9 @@ export default function CameraPage() {
                 <span style={styles.cameraIcon}>📷</span>
               </div>
               <p style={styles.dropzoneText}>Upload a clear photo of your face or use your webcam</p>
+            </div>
+
+            <div style={styles.buttonGroup}>
               <label htmlFor="file-upload" style={styles.uploadButton}>
                 Select Image
               </label>
@@ -79,7 +86,7 @@ export default function CameraPage() {
                 onChange={handleImageUpload}
                 style={styles.fileInput}
               />
-              <button style={{ ...styles.uploadButton, marginTop: "1rem" }} onClick={startWebcam}>
+              <button style={styles.uploadButton} onClick={() => setWebcamActive(true)}>
                 Use Webcam
               </button>
             </div>
@@ -142,13 +149,13 @@ const styles = {
   dropzone: {
     border: "2px dashed #ddd",
     borderRadius: "12px",
-    padding: "2rem 1rem",
+    padding: "3.5rem 1rem",
+    minHeight: "220px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#f9f9f9",
-    cursor: "pointer",
   },
   iconPlaceholder: {
     width: "60px",
@@ -171,6 +178,13 @@ const styles = {
   fileInput: {
     display: "none",
   },
+  buttonGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+    marginTop: "1.5rem",
+    alignItems: "center",
+  },
   uploadButton: {
     backgroundColor: "#5b4bff",
     color: "white",
@@ -180,7 +194,8 @@ const styles = {
     fontSize: "14px",
     fontWeight: "500",
     cursor: "pointer",
-    display: "inline-block",
+    width: "100%",
+    maxWidth: "300px",
     textAlign: "center",
   },
   previewContainer: {
@@ -241,5 +256,5 @@ const styles = {
     color: "#666",
     margin: 0,
     lineHeight: "1.5",
-  }
+  },
 };
