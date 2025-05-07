@@ -55,7 +55,7 @@ export function TryOnFrame() {
   const frame = useParams().frame;
   const frameObject = FRAMES.find((f) => f.name.toLowerCase() === frame.toLowerCase());
   const [userPhoto, setUserPhoto] = useState(null);
-  
+
   useEffect(() => {
     // Get the photo from sessionStorage
     const photo = sessionStorage.getItem('tryOnPhoto');
