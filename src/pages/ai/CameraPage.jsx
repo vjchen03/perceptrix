@@ -1,4 +1,3 @@
-// src/pages/ai/CameraPage.jsx
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,19 +6,31 @@ export default function CameraPage() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [webcamActive, setWebcamActive] = useState(false);
-  const [imageData, setImageData] = useState(null);
+  const [image, setImage] = useState(null);
 
   const startWebcam = async () => {
-    setWebcamActive(true);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoRef.current.srcObject = stream;
-    videoRef.current.play();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+      videoRef.current.play();
+      setWebcamActive(true);
+    } catch (err) {
+      alert("Unable to access camera.");
+      console.error(err);
+    }
+  };
+
+  const stopWebcam = () => {
+    const stream = videoRef.current?.srcObject;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    setWebcamActive(false);
   };
 
   const takePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -27,17 +38,8 @@ export default function CameraPage() {
     ctx.drawImage(video, 0, 0);
 
     const dataURL = canvas.toDataURL("image/jpeg");
-    setImageData(dataURL);
     stopWebcam();
     navigate("/ai/loading", { state: { imageData: dataURL } });
-  };
-
-  const stopWebcam = () => {
-    const stream = videoRef.current?.srcObject;
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    setWebcamActive(false);
   };
 
   const handleImageUpload = (e) => {
@@ -54,31 +56,55 @@ export default function CameraPage() {
 
   return (
     <div style={styles.container}>
-      <h2>Choose Input Method</h2>
+      <div style={styles.header}>
+        <h2 style={styles.title}>Face Shape Analysis</h2>
+        <p style={styles.subtitle}>Discover the perfect glasses for your face shape</p>
+      </div>
 
-      {!webcamActive && (
-        <div style={styles.buttonGroup}>
-          <button style={styles.button} onClick={startWebcam}>Use Webcam</button>
-          <label style={{ ...styles.button, cursor: 'pointer' }}>
-            Upload Picture
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: "none" }}
-            />
-          </label>
-        </div>
-      )}
-
-      {webcamActive && (
-        <div style={styles.previewContainer}>
-          <video ref={videoRef} style={styles.video} />
-          <button style={styles.captureButton} onClick={takePhoto}>Take Photo</button>
-        </div>
-      )}
+      <div style={styles.uploadSection}>
+        {!webcamActive ? (
+          <>
+            <div style={styles.dropzone}>
+              <div style={styles.iconPlaceholder}>
+                <span style={styles.cameraIcon}>📷</span>
+              </div>
+              <p style={styles.dropzoneText}>Upload a clear photo of your face or use your webcam</p>
+              <label htmlFor="file-upload" style={styles.uploadButton}>
+                Select Image
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={styles.fileInput}
+              />
+              <button style={{ ...styles.uploadButton, marginTop: "1rem" }} onClick={startWebcam}>
+                Use Webcam
+              </button>
+            </div>
+          </>
+        ) : (
+          <div style={styles.previewContainer}>
+            <video ref={videoRef} style={styles.previewImage} />
+            <button onClick={takePhoto} style={styles.analyzeButton}>
+              Take Photo
+            </button>
+            <button onClick={stopWebcam} style={styles.changeButton}>
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      <div style={styles.infoBox}>
+        <h3 style={styles.infoTitle}>How it works</h3>
+        <p style={styles.infoText}>
+          Our AI analyzes your facial features to determine your face shape and recommend the most flattering glasses styles.
+        </p>
+      </div>
     </div>
   );
 }
@@ -180,6 +206,7 @@ const styles = {
     padding: "0.5rem 1rem",
     fontSize: "14px",
     cursor: "pointer",
+    marginTop: "0.5rem",
   },
   analyzeButton: {
     backgroundColor: "#5b4bff",
