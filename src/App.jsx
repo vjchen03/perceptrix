@@ -43,6 +43,8 @@ function AppContent() {
         <Route path="/aicamera/loading" element={<LoadingPage />} />
         <Route path="/aicamera/results" element={<ResultsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/ai/loading" element={<LoadingPage />} />
+        <Route path="/ai/results" element={<ResultsPage />} />
       </Routes>
       
       {!hideNavbar && (

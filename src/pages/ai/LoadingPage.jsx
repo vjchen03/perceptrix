@@ -1,37 +1,59 @@
-import { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { analyzeFace } from "../../utils/azureFace";
+import { compressImage } from "../../utils/compressImage";
 
 export default function LoadingPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const imageData = state?.imageData;
+  const hasRun = useRef(false); // 👈 prevent duplicate calls
 
   useEffect(() => {
-    const runAI = async () => {
-      const imageUri = state?.imageUri;
-      if (!imageUri) return;
+    if (!imageData || hasRun.current) return;
 
-      const results = await analyzeFace(imageUri);
-      if (results?.length > 0) {
-        navigate("/aicamera/results", {
+    hasRun.current = true;
+
+    const analyzeFace = async () => {
+      try {
+        const compressed = await compressImage(imageData);
+
+        const response = await fetch("https://noggin.rea.gent/free-scorpion-1309", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer rg_v1_8h2li8b7yzvj05toqcwslt8z8gxeo7gjff48_ngk",
+          },
+          body: JSON.stringify({ face: compressed }),
+        });
+
+        const resultText = await response.text();
+
+        let result;
+        try {
+          result = JSON.parse(resultText);
+        } catch {
+          throw new Error("API response was not valid JSON");
+        }
+
+        navigate("/ai/results", {
           state: {
-            imageUri,
-            landmarks: results[0].faceLandmarks,
-            faceRectangle: results[0].faceRectangle,
+            imageData,
+            analysis: result,
           },
         });
-      } else {
-        navigate("/aicamera/results", {
+      } catch (err) {
+        console.error("Error analyzing face:", err);
+        navigate("/ai/results", {
           state: {
-            imageUri,
-            error: "No face detected.",
+            imageData,
+            error: "Something went wrong analyzing your face.",
           },
         });
       }
     };
 
-    runAI();
-  }, []);
+    analyzeFace();
+  }, [imageData, navigate]);
 
   return (
     <div style={styles.container}>
@@ -49,6 +71,21 @@ export default function LoadingPage() {
         <p style={styles.tip}>
           This will help us recommend the perfect glasses for you
         </p>
+
+        {/* Spinner Keyframes */}
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            @keyframes progress {
+              0% { width: 10%; }
+              50% { width: 70%; }
+              100% { width: 90%; }
+            }
+          `}
+        </style>
       </div>
     </div>
   );
@@ -114,14 +151,5 @@ const styles = {
     color: "#888",
     margin: 0,
     fontStyle: "italic",
-  },
-  "@keyframes spin": {
-    "0%": { transform: "rotate(0deg)" },
-    "100%": { transform: "rotate(360deg)" },
-  },
-  "@keyframes progress": {
-    "0%": { width: "10%" },
-    "50%": { width: "70%" },
-    "100%": { width: "90%" },
   },
 };
