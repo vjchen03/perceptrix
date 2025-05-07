@@ -30,24 +30,24 @@ const ProfilePage = () => {
     return null; // Return null while the effect handles the redirect
   }
 
-  // load saved images in firebase storage under /frames/
+  // load saved images in firebase storage
   const storage = getStorage();
-  const framesRef = ref(storage, 'images/');
+  const framesRef = ref(storage, `users/${user.uid}/images/`);
   const [frames, setFrames] = React.useState([]);
+  const [frameNames, setFrameNames] = React.useState([]);
   useEffect(() => {
     const fetchFrames = async () => {
       try {
         const res = await listAll(framesRef);
         const urls = await Promise.all(res.items.map(item => getDownloadURL(item)));
         setFrames(urls);
+        setFrameNames(await res.items.map(item => item.name.split(".")[0]));
       } catch (error) {
         console.error("Error fetching frames:", error);
       }
     };
     fetchFrames();
   }, []);
-  console.log(frames)
-
   return (
     <div style={styles.wrapper}>
       <h1 style={styles.title}>Profile</h1>
@@ -90,33 +90,23 @@ const ProfilePage = () => {
         </button>
       </div>
       {/* frames with names, arragned in a grid */}
+      <h1 style={{...styles.title, marginTop: '40px'}}>Saved Try-On Frames</h1>
+      {frames.length === 0 && (
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <p style={{ fontSize: "16px", color: "#666" }}>
+            Your saved frames will appear here. Try on some frames and save them!
+          </p>
+        </div>
+      )}
       {frames.length > 0 && (
-        // <div>
-        //   <h1 style={styles.title}>Glasses Try On</h1>
-        //   <div style={styles.grid}>
-        //     {FRAMES.map((frame) => (
-        //       <div
-        //         key={frame.name}
-        //         style={{ ...styles.card }}
-        //         onClick={() => navigate('/tryon/' + frame.name.toLowerCase())} // Navigate to the tryon page with the frame name
-        //       >
-        //         <img
-        //           src={frame.image}
-        //           alt={frame.name}
-        //           style={styles.image}
-        //         />
-        //         <div style={styles.overlay}>
-        //           <p style={styles.glassesName}>{frame.name}</p>
-        //         </div>
-        //       </div>
-        //     ))}
-        //   </div>
-        // </div>
-        <div style={{ marginTop: "2rem" }}>
-          <h3 style={styles.sectionTitle}>Saved Frames</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "1rem" }}>
+        <div>
+          <div style={styles.grid}>
             {frames.map((frame, index) => (
-              <img key={index} src={frame} alt={`Frame ${index + 1}`} style={{ width: "100%", borderRadius: "8px" }} />
+              // frame with name next to it
+              <div key={index} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding:0}}>
+                <img src={frame} alt={`Frame ${index}`} style={styles.image} />
+                <p>{frameNames[index]}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -128,6 +118,24 @@ const ProfilePage = () => {
 export default ProfilePage;
 
 const styles = {
+  imageContainer: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#f8f8f8",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: '100%',
+    height: '200px',
+    objectFit: 'contain',
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "1rem",
+  },
   wrapper: {
     maxWidth: "430px",
     margin: "0 auto",

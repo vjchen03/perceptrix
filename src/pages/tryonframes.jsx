@@ -29,7 +29,7 @@ export function TryOnFramesGrid() {
         {FRAMES.map((frame) => (
           <div
             key={frame.name}
-            style={{ ...styles.card }}
+            style={styles.card}
             onClick={() => navigate('/tryon/' + frame.name.toLowerCase())} // Navigate to the tryon page with the frame name
           >
             <img
@@ -91,7 +91,7 @@ export function TryOnFrame() {
         });
       } else if (isSaved === false) {
         const storage = getStorage();
-        const storageRef = ref(storage, `images/${frameObject.name}.jpg`);
+        const storageRef = ref(storage, `users/${user.uid}/images/${frameObject.name}.jpg`);
 
         deleteObject(storageRef).then(() => {
           console.log('Image deleted successfully!');
